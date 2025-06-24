@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "farmily"
+version = "1.0.0"
+description = ""
+authors = ["Akeem Amusat <akeem.a@hexcore.ng>"]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.109.0"
+uvicorn = {extras = ["standard"], version = "^0.27.0"}
+sqlalchemy = "^2.0.25"
+psycopg2-binary = "^2.9.9"
+alembic = "^1.13.1"
+pydantic = {extras = ["email"], version = "^2.5.3"}
+
+[tool.poetry.dev-dependencies]
+pytest = "^8.0.0"
+httpx = "^0.26.0"
+
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
