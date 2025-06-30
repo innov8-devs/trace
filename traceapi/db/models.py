@@ -1,4 +1,5 @@
 import uuid
+from sqlalchemy.dialects.postgresql import UUID, JSON # Import JSON type for structured data
 from sqlalchemy import (
     Column,
     String,
@@ -12,6 +13,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 from ..db.base_class import Base
+from ..schemas.contract import ContractStatus
 from ..schemas.listing import Incoterm
 from ..schemas.user import UserTier, DocumentStatus
 
@@ -35,12 +37,12 @@ class User(Base):
         "Listing", back_populates="seller", cascade="all, delete-orphan"
     )
 
-    # contracts_as_seller = relationship(
-    #     "Contract", foreign_keys="[Contract.seller_id]", back_populates="seller"
-    # )
-    # contracts_as_buyer = relationship(
-    #     "Contract", foreign_keys="[Contract.buyer_id]", back_populates="buyer"
-    # )
+    contracts_as_seller = relationship(
+        "Contract", foreign_keys="[Contract.seller_id]", back_populates="seller"
+    )
+    contracts_as_buyer = relationship(
+        "Contract", foreign_keys="[Contract.buyer_id]", back_populates="buyer"
+    )
 
 
 class Business(Base):
@@ -100,3 +102,28 @@ class Listing(Base):
 
     # Relationship back to the User model
     seller = relationship("User", back_populates="listings")
+
+    # Add the missing contracts relationship
+    contracts = relationship("Contract", back_populates="listing")
+
+class Contract(Base):
+    __tablename__ = "contracts"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    status = Column(SAEnum(ContractStatus), default=ContractStatus.DRAFT, nullable=False)
+
+    # Foreign keys to link the parties
+    listing_id = Column(UUID(as_uuid=True), ForeignKey("listings.id"), nullable=False)
+    seller_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    buyer_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+
+    # Ricardian Contract components
+    legal_prose = Column(Text, nullable=False)
+    parameters = Column(JSON, nullable=False) # Store the machine-readable part as JSON
+    contract_hash = Column(String(64), nullable=False, unique=True) # For SHA-256 hash
+    on_chain_id = Column(String, nullable=True) # For the blockchain record ID
+
+    # Relationships
+    listing = relationship("Listing", back_populates="contracts")
+    seller = relationship("User", foreign_keys=[seller_id], back_populates="contracts_as_seller")
+    buyer = relationship("User", foreign_keys=[buyer_id], back_populates="contracts_as_buyer")

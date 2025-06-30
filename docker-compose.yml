@@ -1,13 +1,11 @@
-version: "3.8"
-
 services:
    web:
       build: .
-      command: uvicorn traceapi.main:app --host 0.0.0.0 --port 8000 --reload
+      command: uvicorn traceapi.main:app --host 0.0.0.0 --port 9001 --reload
       volumes:
          - .:/traceapi
       ports:
-         - "8000:8000"
+         - "9001:9001"
       depends_on:
          - db
       environment:

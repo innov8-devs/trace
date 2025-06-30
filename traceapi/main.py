@@ -3,6 +3,7 @@
 from fastapi import FastAPI
 from traceapi.api.api_v1.endpoints import users as user_router
 from traceapi.api.api_v1.endpoints import listings as listing_router
+from traceapi.api.api_v1.endpoints import contracts as contract_router
 from traceapi.db.base_class import Base
 from traceapi.db.session import engine
 
@@ -16,12 +17,10 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# All routes in 'users.py' will be prefixed with '/api/v1/users'
 app.include_router(user_router.router, prefix="/api/v1/users", tags=["Users"])
-
-# Include the new marketplace listings router
 app.include_router(listing_router.router, prefix="/api/v1/listings", tags=["Listings"])
+app.include_router(contract_router.router, prefix="/api/v1/contracts", tags=["Contracts"])
 
-@app.get("/")
-def read_root():
+@app.get("/", name="TRACE Index")
+def api_index():
     return {"message": "Welcome to the Farmily TRACE API"}
