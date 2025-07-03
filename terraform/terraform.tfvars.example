@@ -1,0 +1,4 @@
+aws_region = "us-east-1"
+db_name = "farmily"
+db_username = "farmily_user"
+db_password = "your-secure-password-here"
